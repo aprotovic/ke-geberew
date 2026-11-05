@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+enhanced_ke_geberew/frontend/node_modules/
+enhanced_ke_geberew/backend/node_modules/
+
+# Production build
+enhanced_ke_geberew/frontend/build/
+
+# Database (auto-generated on server start)
+enhanced_ke_geberew/backend/database.json
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
