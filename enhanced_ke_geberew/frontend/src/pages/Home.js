@@ -5,7 +5,6 @@ import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import Navbar from '../components/Navbar';
 import AuthModal from '../components/AuthModal';
-import Chatbot from '../components/Chatbot';
 import '../styles/Home.css';
 
 const Home = () => {
@@ -202,7 +201,7 @@ const Home = () => {
         <div className="container">
           <div className="footer-content">
             <div className="footer-section">
-              <h3>{t('home.welcome').split(' ')[2] + ' ' + t('home.welcome').split(' ')[3]}</h3>
+              <h3>🌾 {t('common.appName')}</h3>
               <p>{t('footer.description')}</p>
             </div>
             <div className="footer-section">
@@ -223,13 +222,12 @@ const Home = () => {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 Ke Geberew. {t('footer.copyright')}</p>
+            <p>&copy; {new Date().getFullYear()} {t('common.appName')}. {t('footer.copyright')}</p>
           </div>
         </div>
       </footer>
 
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
-      <Chatbot />
     </div>
   );
 };

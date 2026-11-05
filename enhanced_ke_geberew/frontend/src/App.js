@@ -14,6 +14,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import DriverDashboard from './pages/DriverDashboard';
 import Products from './pages/Products';
 import PrivateRoute from './components/PrivateRoute';
+import Chatbot from './components/Chatbot';
 
 import './styles/App.css';
 
@@ -68,6 +69,7 @@ function App() {
               
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
+            <Chatbot />
           </div>
         </Router>
       </AuthProvider>

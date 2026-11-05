@@ -14,6 +14,8 @@ i18n
       am: { translation: am }
     },
     fallbackLng: 'en',
+    load: 'languageOnly',
+    supportedLngs: ['en', 'am'],
     debug: false,
     interpolation: {
       escapeValue: false

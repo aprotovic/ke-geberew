@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,6 +7,7 @@ import Navbar from '../components/Navbar';
 import '../styles/Dashboard.css';
 
 const BuyerDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -15,6 +17,7 @@ const BuyerDashboard = () => {
   useEffect(() => {
     fetchOrders();
     fetchProducts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchOrders = async () => {
@@ -22,7 +25,7 @@ const BuyerDashboard = () => {
       const response = await axios.get(`${API_BASE_URL}/orders/get_user_orders.php`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(response.data);
+      setOrders(response.data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
@@ -31,7 +34,7 @@ const BuyerDashboard = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/products/get_all.php`);
-      setProducts(response.data);
+      setProducts(response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -41,20 +44,28 @@ const BuyerDashboard = () => {
     try {
       await axios.post(`${API_BASE_URL}/orders/create.php`, {
         product_id: productId,
-        quantity: quantity,
+        quantity: Number(quantity),
         transport_cost: 50.00
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      alert('Order placed successfully!');
+      alert(t('dashboard.orderSuccess'));
       setSelectedProduct(null);
       setQuantity(1);
       fetchOrders();
       fetchProducts();
     } catch (error) {
-      alert('Error placing order: ' + (error.response?.data?.message || 'Unknown error'));
+      alert(t('dashboard.orderError') + ': ' + (error.response?.data?.message || ''));
     }
+  };
+
+  const translateStatus = (status) => {
+    return t(`dashboard.statuses.${status}`, status);
+  };
+
+  const translateCategory = (cat) => {
+    return t(`products.categories.${cat}`, cat);
   };
 
   return (
@@ -62,22 +73,22 @@ const BuyerDashboard = () => {
       <Navbar />
       
       <div className="dashboard-container">
-        <h1>Buyer Dashboard</h1>
+        <h1>🛒 {t('dashboard.buyerDashboard')}</h1>
 
         <div className="dashboard-section">
-          <h2>Available Products</h2>
+          <h2>🌾 {t('dashboard.availableProducts')}</h2>
           <div className="products-grid">
             {products.length === 0 ? (
-              <p>No products available at the moment.</p>
+              <p>{t('products.noProducts')}</p>
             ) : (
               products.map((product) => (
                 <div key={product.product_id} className="product-card">
                   <h3>{product.name}</h3>
-                  <p className="category">{product.category}</p>
-                  <p className="price">{product.price} ETB</p>
-                  <p className="quantity">Available: {product.quantity}</p>
+                  <p className="category">{translateCategory(product.category)}</p>
+                  <p className="price">{Number(product.price).toLocaleString()} {t('common.etb')}</p>
+                  <p className="quantity">{t('products.available')}: {product.quantity} {t('common.kg')}</p>
                   <p className="location">📍 {product.location}</p>
-                  <p className="farmer">Farmer: {product.farmer_name}</p>
+                  <p className="farmer">👨‍🌾 {t('products.farmer')}: {product.farmer_name || t('common.na')}</p>
                   
                   {selectedProduct === product.product_id ? (
                     <div className="order-form">
@@ -92,13 +103,13 @@ const BuyerDashboard = () => {
                         className="btn-primary" 
                         onClick={() => handleOrder(product.product_id)}
                       >
-                        Confirm Order
+                        {t('dashboard.confirmOrder')}
                       </button>
                       <button 
                         className="btn-secondary" 
                         onClick={() => setSelectedProduct(null)}
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     </div>
                   ) : (
@@ -107,7 +118,7 @@ const BuyerDashboard = () => {
                       onClick={() => setSelectedProduct(product.product_id)}
                       disabled={product.quantity === 0}
                     >
-                      Order Now
+                      {t('products.orderNow')}
                     </button>
                   )}
                 </div>
@@ -117,23 +128,22 @@ const BuyerDashboard = () => {
         </div>
 
         <div className="dashboard-section">
-          <h2>My Orders</h2>
+          <h2>📦 {t('dashboard.myOrders')}</h2>
           <div className="orders-list">
             {orders.length === 0 ? (
-              <p>No orders yet. Browse products and place your first order!</p>
+              <p>{t('dashboard.noOrders')}</p>
             ) : (
               orders.map((order) => (
                 <div key={order.order_id} className="order-card">
                   <div className="order-header">
                     <h3>{order.product_name}</h3>
-                    <span className={`status ${order.status}`}>{order.status}</span>
+                    <span className={`status ${order.status}`}>{translateStatus(order.status)}</span>
                   </div>
-                  <p>Farmer: {order.farmer_name}</p>
-                  <p>Quantity: {order.quantity}</p>
-                  <p>Total Price: {order.total_price} ETB</p>
-                  <p>Transport Cost: {order.transport_cost} ETB</p>
+                  <p>👨‍🌾 {t('products.farmer')}: {order.farmer_name || t('common.na')}</p>
+                  <p>⚖️ {t('dashboard.quantity')}: {order.quantity} {t('common.kg')}</p>
+                  <p>💰 {t('dashboard.totalPrice')}: {Number(order.total_price).toLocaleString()} {t('common.etb')}</p>
                   <p className="order-date">
-                    Ordered on: {new Date(order.order_date).toLocaleDateString()}
+                    📅 {new Date(order.order_date).toLocaleDateString()}
                   </p>
                 </div>
               ))

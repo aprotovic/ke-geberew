@@ -74,7 +74,7 @@ const Navbar = ({ onOpenAuth }) => {
                   <span className="toggle-icon">{isDark ? '🌙' : '☀️'}</span>
                 </span>
               </span>
-              <span className="toggle-label">{isDark ? 'Dark' : 'Light'}</span>
+              <span className="toggle-label">{isDark ? t('common.dark') : t('common.light')}</span>
             </button>
 
             <LanguageSelector />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/AuthModal.css';
 
 const AuthModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState('farmer');
   const [formData, setFormData] = useState({
@@ -72,10 +74,10 @@ const AuthModal = ({ isOpen, onClose }) => {
       } else {
         // After registration, switch to login
         setIsLogin(true);
-        setError('Registration successful! Please login.');
+        setError(t('auth.regSuccess'));
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred');
+      setError(err.response?.data?.message || t('auth.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -101,18 +103,18 @@ const AuthModal = ({ isOpen, onClose }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>&times;</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">&times;</button>
         
-        <h2>{isLogin ? 'Login' : 'Register'}</h2>
+        <h2>{isLogin ? t('auth.login') : t('auth.register')}</h2>
 
         {/* Role selector only shown during REGISTRATION — login detects role from credentials */}
         {!isLogin && (
           <div className="role-selector">
-            <label>Register as:</label>
+            <label>{t('auth.registerAs')}</label>
             <select value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="farmer">Farmer</option>
-              <option value="buyer">Buyer/Merchant</option>
-              <option value="driver">Driver</option>
+              <option value="farmer">{t('auth.farmer')}</option>
+              <option value="buyer">{t('auth.buyer')}</option>
+              <option value="driver">{t('auth.driver')}</option>
             </select>
           </div>
         )}
@@ -123,7 +125,7 @@ const AuthModal = ({ isOpen, onClose }) => {
               <input
                 type="text"
                 name="name"
-                placeholder="Full Name"
+                placeholder={t('auth.name')}
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -135,7 +137,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder={t('auth.email')}
               value={formData.email}
               onChange={handleChange}
               required
@@ -146,7 +148,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             <input
               type="password"
               name="password"
-              placeholder="Password"
+              placeholder={t('auth.password')}
               value={formData.password}
               onChange={handleChange}
               required
@@ -158,7 +160,7 @@ const AuthModal = ({ isOpen, onClose }) => {
               <input
                 type="text"
                 name="location"
-                placeholder="Location"
+                placeholder={t('auth.location')}
                 value={formData.location}
                 onChange={handleChange}
               />
@@ -171,7 +173,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   name="national_id"
-                  placeholder="National ID"
+                  placeholder={t('auth.nationalId')}
                   value={formData.national_id}
                   onChange={handleChange}
                 />
@@ -180,7 +182,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   name="license_number"
-                  placeholder="License Number"
+                  placeholder={t('auth.licenseNumber')}
                   value={formData.license_number}
                   onChange={handleChange}
                 />
@@ -191,14 +193,14 @@ const AuthModal = ({ isOpen, onClose }) => {
           {error && <div className="error-message">{error}</div>}
 
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
+            {loading ? t('auth.pleaseWait') : (isLogin ? t('auth.login') : t('auth.register'))}
           </button>
         </form>
 
         <p className="toggle-mode">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span onClick={toggleMode}>
-            {isLogin ? 'Register' : 'Login'}
+          {isLogin ? t('auth.noAccount') : t('auth.haveAccount')}{' '}
+          <span onClick={toggleMode} role="button" tabIndex={0}>
+            {isLogin ? t('auth.register') : t('auth.login')}
           </span>
         </p>
       </div>

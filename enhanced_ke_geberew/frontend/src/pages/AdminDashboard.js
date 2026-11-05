@@ -4,7 +4,6 @@ import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
-import LanguageSelector from '../components/LanguageSelector';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
@@ -24,12 +23,13 @@ const AdminDashboard = () => {
     fetchStats();
     fetchRecentActivities();
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/stats/get_stats.php`);
-      setStats(response.data);
+      setStats(response.data || {});
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
       const response = await axios.get(`${API_BASE_URL}/admin/get_recent_activities.php`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setRecentActivities(response.data);
+      setRecentActivities(response.data || []);
     } catch (error) {
       console.error('Error fetching activities:', error);
     }
@@ -51,7 +51,7 @@ const AdminDashboard = () => {
       const response = await axios.get(`${API_BASE_URL}/admin/get_users.php`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(response.data);
+      setUsers(response.data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -62,15 +62,19 @@ const AdminDashboard = () => {
   };
 
   const handleManageProducts = () => {
-    alert(t('dashboard.manageProducts') + ' - Coming soon!');
+    alert(t('dashboard.manageProducts') + ' - Info');
   };
 
   const handleManageOrders = () => {
-    alert(t('dashboard.manageOrders') + ' - Coming soon!');
+    alert(t('dashboard.manageOrders') + ' - Info');
   };
 
   const handleViewReports = () => {
-    alert(t('dashboard.viewReports') + ' - Coming soon!');
+    alert(t('dashboard.viewReports') + ' - Info');
+  };
+
+  const translateRole = (role) => {
+    return t(`auth.${role}`, role);
   };
 
   return (
@@ -79,8 +83,7 @@ const AdminDashboard = () => {
       
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1>{t('dashboard.adminDashboard')}</h1>
-          <LanguageSelector />
+          <h1>🛡️ {t('dashboard.adminDashboard')}</h1>
         </div>
 
         {activeTab === 'overview' && (
@@ -90,7 +93,7 @@ const AdminDashboard = () => {
                 <div className="stat-icon">👥</div>
                 <div className="stat-info">
                   <h3>{t('dashboard.totalUsers')}</h3>
-                  <p className="stat-number">{stats.totalUsers}</p>
+                  <p className="stat-number">{stats.totalUsers || 0}</p>
                 </div>
               </div>
 
@@ -98,7 +101,7 @@ const AdminDashboard = () => {
                 <div className="stat-icon">🌾</div>
                 <div className="stat-info">
                   <h3>{t('dashboard.totalProducts')}</h3>
-                  <p className="stat-number">{stats.totalProducts}</p>
+                  <p className="stat-number">{stats.totalProducts || 0}</p>
                 </div>
               </div>
 
@@ -106,7 +109,7 @@ const AdminDashboard = () => {
                 <div className="stat-icon">📦</div>
                 <div className="stat-info">
                   <h3>{t('dashboard.totalOrders')}</h3>
-                  <p className="stat-number">{stats.totalOrders}</p>
+                  <p className="stat-number">{stats.totalOrders || 0}</p>
                 </div>
               </div>
 
@@ -114,13 +117,13 @@ const AdminDashboard = () => {
                 <div className="stat-icon">⏳</div>
                 <div className="stat-info">
                   <h3>{t('dashboard.pendingOrders')}</h3>
-                  <p className="stat-number">{stats.pendingOrders}</p>
+                  <p className="stat-number">{stats.pendingOrders || 0}</p>
                 </div>
               </div>
             </div>
 
             <div className="dashboard-section">
-              <h2>{t('dashboard.systemManagement')}</h2>
+              <h2>⚙️ {t('dashboard.systemManagement')}</h2>
               <div className="admin-actions">
                 <button className="admin-btn" onClick={handleManageUsers}>
                   <span>👥</span> {t('dashboard.manageUsers')}
@@ -138,11 +141,11 @@ const AdminDashboard = () => {
             </div>
 
             <div className="dashboard-section">
-              <h2>{t('dashboard.recentActivity')}</h2>
+              <h2>📝 {t('dashboard.recentActivity')}</h2>
               <div className="activity-list">
                 {recentActivities.length > 0 ? (
-                  recentActivities.map((activity) => (
-                    <div key={activity.id} className="activity-item">
+                  recentActivities.map((activity, index) => (
+                    <div key={activity.activity_id || index} className="activity-item">
                       <div className="activity-icon">📝</div>
                       <div className="activity-details">
                         <p className="activity-description">{activity.description}</p>
@@ -153,7 +156,7 @@ const AdminDashboard = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="no-data">{t('dashboard.recentActivity')} - No activities yet</p>
+                  <p className="no-data">{t('dashboard.noActivities')}</p>
                 )}
               </div>
             </div>
@@ -163,9 +166,9 @@ const AdminDashboard = () => {
         {activeTab === 'users' && (
           <div className="dashboard-section">
             <div className="section-header">
-              <h2>{t('dashboard.manageUsers')}</h2>
+              <h2>👥 {t('dashboard.manageUsers')}</h2>
               <button className="btn-back" onClick={() => setActiveTab('overview')}>
-                ← Back
+                ← {t('common.back')}
               </button>
             </div>
             <div className="table-responsive">
@@ -175,8 +178,8 @@ const AdminDashboard = () => {
                     <th>ID</th>
                     <th>{t('auth.name')}</th>
                     <th>{t('auth.email')}</th>
-                    <th>{t('auth.location')}</th>
-                    <th>{t('auth.selectRole')}</th>
+                    <th>{t('products.location')}</th>
+                    <th>{t('dashboard.status')}</th>
                     <th>{t('dashboard.actions')}</th>
                   </tr>
                 </thead>
@@ -186,8 +189,8 @@ const AdminDashboard = () => {
                       <td>{user.user_id}</td>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
-                      <td>{user.location || 'N/A'}</td>
-                      <td>{user.role}</td>
+                      <td>{user.location || t('common.na')}</td>
+                      <td>{translateRole(user.role)}</td>
                       <td>
                         <button className="btn-action">{t('dashboard.edit')}</button>
                       </td>

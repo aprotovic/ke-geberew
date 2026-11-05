@@ -8,25 +8,27 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
+  const currentLang = (i18n.language || 'en').startsWith('am') ? 'am' : 'en';
+
   const greetings = {
-    en: "Hello! How can I help you today?",
-    am: "ሰላም! ዛሬ እንዴት ልርዳዎ?"
+    en: "Hello! Welcome to Ke Geberew. How can I help you today?",
+    am: "ሰላም! ወደ ከ ገበሬው እንኳን ደህና መጡ። ዛሬ እንዴት ልርዳዎት እችላለሁ?"
   };
 
   const responses = {
     en: {
       hello: "Hi there! Welcome to Ke Geberew. How can I assist you?",
-      products: "You can browse our products page to see available agricultural products.",
-      register: "To register, click on the 'Get Started' button and fill in your details.",
-      contact: "You can contact us through our Contact page or call +251 11 123 4567",
-      default: "I'm here to help! You can ask about products, registration, or contact information."
+      products: "You can browse our Products page to see fresh agricultural crops, grains, coffee, and honey from Ethiopian farmers.",
+      register: "To register, click on 'Sign Up' or 'Register Now' and select your role (Farmer, Buyer, or Driver).",
+      contact: "You can reach us through our Contact page, email info@kegeberew.com, or phone +251 11 123 4567.",
+      default: "I'm here to help! You can ask about products, registration, delivery, or contact information."
     },
     am: {
-      hello: "ሰላም! ወደ ከ ገበሬው እንኳን ደህና መጡ። እንዴት ልርዳዎ?",
-      products: "ያሉትን የግብርና ምርቶች ለመመልከት የምርቶች ገፃችንን ማሰስ ይችላሉ።",
-      register: "ለመመዝገብ፣ በ 'ይጀምሩ' ቁልፍ ላይ ጠቅ ያድርጉ እና ዝርዝሮችዎን ይሙሉ።",
-      contact: "በእውቂያ ገፃችን ወይም በስልክ +251 11 123 4567 ማገናኘት ይችላሉ",
-      default: "ለመርዳት እዚህ ነኝ! ስለ ምርቶች፣ ምዝገባ ወይም የእውቂያ መረጃ መጠየቅ ይችላሉ።"
+      hello: "ሰላም! ወደ ከ ገበሬው እንኳን ደህና መጡ። እንዴት ልርዳዎት እችላለሁ?",
+      products: "የግብርና ምርቶችን፣ እህሎችን፣ ቡናን እና ማርን ለመመልከት 'ምርቶች' ገጻችንን መጎብኘት ይችላሉ።",
+      register: "ለመመዝገብ 'ይመዝገቡ' የሚለውን ቁልፍ በመጫን ሚናዎን (ገበሬ፣ ገዢ ወይም ሹፌር) ይምረጡ።",
+      contact: "በእውቂያ ገጻችን፣ በኢሜይል info@kegeberew.com ወይም በስልክ +251 11 123 4567 ሊያገኙን ይችላሉ።",
+      default: "እርስዎን ለመርዳት ዝግጁ ነኝ! ስለ ምርቶች፣ ምዝገባ፣ ማድረስ ወይም አድራሻ መጠየቅ ይችላሉ።"
     }
   };
 
@@ -39,33 +41,33 @@ const Chatbot = () => {
       timestamp: new Date()
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
 
-    // Simple bot response logic
+    const inputLower = inputValue.toLowerCase();
+    setInputValue('');
+
+    // Responsive bot answer
     setTimeout(() => {
-      const botResponse = getBotResponse(inputValue.toLowerCase());
+      const botResponse = getBotResponse(inputLower);
       const botMessage = {
         text: botResponse,
         sender: 'bot',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
-    }, 500);
-
-    setInputValue('');
+    }, 400);
   };
 
   const getBotResponse = (input) => {
-    const lang = i18n.language;
-    const langResponses = responses[lang] || responses.en;
+    const langResponses = responses[currentLang] || responses.en;
 
-    if (input.includes('hello') || input.includes('hi') || input.includes('ሰላም')) {
+    if (input.includes('hello') || input.includes('hi') || input.includes('ሰላም') || input.includes('ጤና')) {
       return langResponses.hello;
-    } else if (input.includes('product') || input.includes('ምርት')) {
+    } else if (input.includes('product') || input.includes('ምርት') || input.includes('ጤፍ') || input.includes('ቡና')) {
       return langResponses.products;
-    } else if (input.includes('register') || input.includes('መዝገብ')) {
+    } else if (input.includes('register') || input.includes('መዝገብ') || input.includes('መለያ') || input.includes('login')) {
       return langResponses.register;
-    } else if (input.includes('contact') || input.includes('እውቂያ')) {
+    } else if (input.includes('contact') || input.includes('ስልክ') || input.includes('እውቂያ') || input.includes('አድራሻ')) {
       return langResponses.contact;
     } else {
       return langResponses.default;
@@ -73,11 +75,11 @@ const Chatbot = () => {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen && messages.length === 0) {
-      // Add greeting message when first opened
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState && messages.length === 0) {
       const greeting = {
-        text: greetings[i18n.language] || greetings.en,
+        text: greetings[currentLang] || greetings.en,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -87,14 +89,14 @@ const Chatbot = () => {
 
   return (
     <div className="chatbot">
-      <button className="chatbot-toggle" onClick={toggleChat}>
+      <button className="chatbot-toggle" onClick={toggleChat} aria-label="Toggle chat">
         {isOpen ? '✕' : '💬'}
       </button>
 
       {isOpen && (
         <div className="chatbot-window">
           <div className="chatbot-header">
-            <h3>{t('chatbot.title')}</h3>
+            <h3>💬 {t('chatbot.title')}</h3>
           </div>
 
           <div className="chatbot-messages">
@@ -116,7 +118,7 @@ const Chatbot = () => {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder={t('chatbot.placeholder')}
             />
             <button onClick={handleSend}>{t('chatbot.send')}</button>

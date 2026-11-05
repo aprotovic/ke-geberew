@@ -10,12 +10,14 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    alert(t('contact.send') + ' - Coming soon!');
+    setSubmitted(true);
+    alert(t('contact.sentSuccess'));
     setFormData({ name: '', email: '', message: '' });
+    setTimeout(() => setSubmitted(false), 4000);
   };
 
   const handleChange = (e) => {
@@ -73,7 +75,7 @@ const Contact = () => {
                 ></textarea>
               </div>
               <button type="submit" className="btn-submit">
-                {t('contact.send')}
+                {submitted ? t('contact.sentSuccess') : t('contact.send')}
               </button>
             </form>
           </div>
