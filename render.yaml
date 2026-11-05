@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ke-geberew
+    runtime: node
+    buildCommand: cd enhanced_ke_geberew/frontend && npm install && npm run build
+    startCommand: node enhanced_ke_geberew/backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: false
+        value: 10000
